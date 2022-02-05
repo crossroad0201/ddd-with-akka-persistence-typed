@@ -1,12 +1,5 @@
 import Dependencies._
 
-lazy val akkaVersion = "2.6.18"
-
-// Run in a separate JVM, to make sure sbt waits until all threads have
-// finished before returning.
-// If you want to keep the application running while executing other
-// sbt tasks, consider https://github.com/spray/sbt-revolver/
-
 lazy val baseSettings = Seq(
   version := "1.0",
   scalaVersion := "2.13.1",
@@ -83,11 +76,30 @@ lazy val example3InterfaceAdapter =
     )
     .dependsOn(example3Domain)
 
+lazy val example4Domain =
+  (project in file("modules/example4/domain"))
+    .settings(baseSettings)
+
+lazy val example4InterfaceAdapter =
+  (project in file("modules/example4/interfaceAdapter"))
+    .settings(baseSettings)
+    .settings(
+      libraryDependencies ++= Seq(
+        Akka.Typed.actor,
+        Akka.Typed.persistence,
+        Logback.classic,
+        Akka.Typed.actorTestKit % Test,
+        Akka.Typed.persistenceTestKit % Test
+      )
+    )
+    .dependsOn(example4Domain)
+
 lazy val root = (project in file("."))
   .aggregate(
     example1Domain, example1InterfaceAdapter,
     example2Domain, example2InterfaceAdapter,
-    example3Domain, example3InterfaceAdapter
+    example3Domain, example3InterfaceAdapter,
+    example4Domain, example4InterfaceAdapter
   )
   .settings(baseSettings)
   .settings(

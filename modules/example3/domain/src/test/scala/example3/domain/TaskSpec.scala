@@ -1,7 +1,7 @@
 package example3.domain
 
-import example3.domain.Task.{BackToTodoErrorByStillNotDone$, EditSubjectErrorByAlreadyDone, ToDoneErrorByAlreadyDone}
-import example3.domain.TaskEvent.{BackedToTodo, Created, Done, SubjectEdited}
+import example3.domain.Task.{ BackToTodoErrorByStillNotDone$, EditSubjectErrorByAlreadyDone, ToDoneErrorByAlreadyDone }
+import example3.domain.TaskEvent.{ BackedToTodo, Created, Done, SubjectEdited }
 import org.scalatest.diagrams.Diagrams
 import org.scalatest.freespec.AnyFreeSpec
 
