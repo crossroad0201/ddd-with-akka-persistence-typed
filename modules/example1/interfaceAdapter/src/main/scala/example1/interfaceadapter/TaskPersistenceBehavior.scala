@@ -9,25 +9,41 @@ import example1.interfaceadapter.TaskProtocol._
 
 object TaskPersistenceBehavior {
 
-  sealed trait State
-  private case class Empty(id: TaskId) extends State
-  private case class Just(task: Task) extends State
+  sealed trait State {
+    def id: TaskId
+  }
+  case class Empty(id: TaskId) extends State
+  case class Just(entity: Task) extends State {
+    override def id = entity.id
+  }
 
-  def apply(id: TaskId): Behavior[TaskProtocol.Command] =
+  def apply(
+      id: TaskId,
+      // NOTE Take optional parameter for initial state, that convenient for unit test.
+      initialState: TaskId => State = id => Empty(id)
+  ): Behavior[Command] =
     EventSourcedBehavior.withEnforcedReplies(
       PersistenceId.of("task", id.value),
-      Empty(id),
+      initialState(id),
       commandHandler,
       eventHandler
     )
 
-  def commandHandler(state: State, command: TaskProtocol.Command): ReplyEffect[TaskEvent, State] =
+  def commandHandler(state: State, command: Command): ReplyEffect[TaskEvent, State] =
     (state, command) match {
       case (Empty(_), Create(subject, replyTo)) =>
         // NOTE Responsibility of create a event is on the persistent actor.
         Effect
           .persist(Created(subject))
           .thenReply(replyTo)(_ => CreateSucceeded)
+
+      case (Empty(_), cmd: RequireCreated) =>
+        Effect
+          .reply(cmd.replyTo)(FailedByDoesNotExists)
+
+      case (Just(_), Create(_, replyTo)) =>
+        Effect
+          .reply(replyTo)(CreateFailedByAlreadyExists)
 
       case (Just(entity), EditSubject(subject, replyTo)) =>
         if (entity.canEditSubject)
