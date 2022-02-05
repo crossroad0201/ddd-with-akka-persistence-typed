@@ -29,7 +29,8 @@ lazy val baseSettings = Seq(
   semanticdbVersion := scalafixSemanticdb.revision
 )
 
-lazy val example1Domain = (project in file("modules/example1/domain"))
+lazy val example1Domain =
+  (project in file("modules/example1/domain"))
   .settings(baseSettings)
 
 lazy val example1InterfaceAdapter =
@@ -46,8 +47,29 @@ lazy val example1InterfaceAdapter =
     )
     .dependsOn(example1Domain)
 
+lazy val example2Domain =
+  (project in file("modules/example2/domain"))
+  .settings(baseSettings)
+
+lazy val example2InterfaceAdapter =
+  (project in file("modules/example2/interfaceAdapter"))
+    .settings(baseSettings)
+    .settings(
+      libraryDependencies ++= Seq(
+        Akka.Typed.actor,
+        Akka.Typed.persistence,
+        Logback.classic,
+        Akka.Typed.actorTestKit % Test,
+        Akka.Typed.persistenceTestKit % Test
+      )
+    )
+    .dependsOn(example1Domain)
+
 lazy val root = (project in file("."))
-  .aggregate(example1Domain, example1InterfaceAdapter)
+  .aggregate(
+    example1Domain, example1InterfaceAdapter,
+    example2Domain, example2InterfaceAdapter
+  )
   .settings(baseSettings)
   .settings(
     name := "ddd-with-akka-persistence-typed",
