@@ -1,14 +1,14 @@
 package example2.domain
 
 import example2.domain.Task.{
+  BackToTodoError,
+  BackToTodoErrorByStillNotDone$,
   EditSubjectError,
   EditSubjectErrorByAlreadyDone,
-  ReturnToTodoError,
-  ReturnToTodoErrorByStillNotDone,
   ToDoneError,
   ToDoneErrorByAlreadyDone
 }
-import example2.domain.TaskEvent.{ Created, Done, ReturnedToTodo, SubjectEdited }
+import example2.domain.TaskEvent.{ BackedToTodo, Created, Done, SubjectEdited }
 
 case class Task(
     id: TaskId,
@@ -35,13 +35,13 @@ case class Task(
   def applyDone(event: Done.type): Task =
     copy(status = event.status)
 
-  def returnToTodo: Either[ReturnToTodoError, ReturnedToTodo.type] =
+  def backToTodo: Either[BackToTodoError, BackedToTodo.type] =
     if (status == Status.Done)
-      Right(ReturnedToTodo)
+      Right(BackedToTodo)
     else
-      Left(ReturnToTodoErrorByStillNotDone)
+      Left(BackToTodoErrorByStillNotDone$)
 
-  def applyReturnedToTodo(event: ReturnedToTodo.type): Task =
+  def applyBackedToTodo(event: BackedToTodo.type): Task =
     copy(status = event.status)
 }
 object Task {
@@ -57,8 +57,8 @@ object Task {
   sealed trait ToDoneError
   case object ToDoneErrorByAlreadyDone extends ToDoneError
 
-  sealed trait ReturnToTodoError
-  case object ReturnToTodoErrorByStillNotDone extends ReturnToTodoError
+  sealed trait BackToTodoError
+  case object BackToTodoErrorByStillNotDone$ extends BackToTodoError
 }
 
 case class TaskId(value: String)

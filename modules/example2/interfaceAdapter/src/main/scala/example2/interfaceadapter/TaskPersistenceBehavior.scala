@@ -3,8 +3,8 @@ package example2.interfaceadapter
 import akka.actor.typed.Behavior
 import akka.persistence.typed.PersistenceId
 import akka.persistence.typed.scaladsl.{ Effect, EventSourcedBehavior, ReplyEffect }
-import example2.domain.Task.{ EditSubjectErrorByAlreadyDone, ReturnToTodoErrorByStillNotDone, ToDoneErrorByAlreadyDone }
-import example2.domain.TaskEvent.{ Created, Done, ReturnedToTodo, SubjectEdited }
+import example2.domain.Task.{ BackToTodoErrorByStillNotDone$, EditSubjectErrorByAlreadyDone, ToDoneErrorByAlreadyDone }
+import example2.domain.TaskEvent.{ BackedToTodo, Created, Done, SubjectEdited }
 import example2.domain.{ Task, TaskEvent, TaskId }
 import example2.interfaceadapter.TaskProtocol._
 
@@ -72,15 +72,15 @@ object TaskPersistenceBehavior {
               .reply(replyTo)(ToDoneFailedByAlreadyDone)
         }
 
-      case (Just(entity), ReturnToTodo(replyTo)) =>
-        entity.returnToTodo match {
+      case (Just(entity), BackToTodo(replyTo)) =>
+        entity.backToTodo match {
           case Right(event) =>
             Effect
               .persist(event)
-              .thenReply(replyTo)(_ => ReturnToTodoSucceeded)
-          case Left(ReturnToTodoErrorByStillNotDone) =>
+              .thenReply(replyTo)(_ => BackToTodoSucceeded)
+          case Left(BackToTodoErrorByStillNotDone$) =>
             Effect
-              .reply(replyTo)(ReturnToTodoFailedByStillNotDone)
+              .reply(replyTo)(BackToTodoFailedByStillNotDone)
         }
 
       case _ =>
@@ -95,8 +95,8 @@ object TaskPersistenceBehavior {
         Just(entity.applySubjectEdited(event))
       case (Just(entity), event: Done.type) =>
         Just(entity.applyDone(event))
-      case (Just(entity), event: ReturnedToTodo.type) =>
-        Just(entity.applyReturnedToTodo(event))
+      case (Just(entity), event: BackedToTodo.type) =>
+        Just(entity.applyBackedToTodo(event))
       case _ =>
         throw new IllegalArgumentException()
     }

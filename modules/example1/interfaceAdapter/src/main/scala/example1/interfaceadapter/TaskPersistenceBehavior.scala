@@ -64,14 +64,14 @@ object TaskPersistenceBehavior {
           Effect
             .reply(replyTo)(ToDoneFailedByAlreadyDone)
 
-      case (Just(entity), ReturnToTodo(replyTo)) =>
-        if (entity.canReturnToTodo)
+      case (Just(entity), BackToTodo(replyTo)) =>
+        if (entity.canBackToTodo)
           Effect
-            .persist(ReturnedToTodo)
-            .thenReply(replyTo)(_ => ReturnToTodoSucceeded)
+            .persist(BackedToTodo)
+            .thenReply(replyTo)(_ => BackToTodoSucceeded$)
         else
           Effect
-            .reply(replyTo)(ReturnToTodoFailedByStillNotDone)
+            .reply(replyTo)(BackToTodoFailedByStillNotDone$)
 
       case _ =>
         Effect.unhandled.thenNoReply
@@ -85,8 +85,8 @@ object TaskPersistenceBehavior {
         Just(entity.editSubject(newSubject))
       case (Just(entity), Done) =>
         Just(entity.toDone)
-      case (Just(entity), ReturnedToTodo) =>
-        Just(entity.returnToTodo)
+      case (Just(entity), BackedToTodo) =>
+        Just(entity.backToTodo)
       case _ =>
         throw new IllegalArgumentException()
     }

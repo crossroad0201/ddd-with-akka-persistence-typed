@@ -117,7 +117,7 @@ class TaskSpec extends AnyFreeSpecLike with Diagrams {
     }
   }
 
-  "returnToTodo" - {
+  "backToTodo" - {
     "Should can change status to todo if status is done." in {
       val sut = Task
         .create(
@@ -128,12 +128,12 @@ class TaskSpec extends AnyFreeSpecLike with Diagrams {
       assert(sut.status == Status.Done)
 
       {
-        val actual = sut.canReturnToTodo
+        val actual = sut.canBackToTodo
         assert(actual)
       }
 
       {
-        val actual = sut.returnToTodo
+        val actual = sut.backToTodo
         assert(
           actual == Task(
             TaskId("1"),
@@ -153,13 +153,13 @@ class TaskSpec extends AnyFreeSpecLike with Diagrams {
       assert(sut.status == Status.Todo)
 
       {
-        val actual = sut.canReturnToTodo
+        val actual = sut.canBackToTodo
         assert(!actual)
       }
 
       {
         intercept[IllegalArgumentException] {
-          sut.returnToTodo
+          sut.backToTodo
         }
       }
     }

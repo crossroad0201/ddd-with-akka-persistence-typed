@@ -24,11 +24,11 @@ case class Task(
     copy(status = Status.Done)
   }
 
-  def canReturnToTodo: Boolean =
+  def canBackToTodo: Boolean =
     status != Status.Todo
 
-  def returnToTodo: Task = {
-    require(canReturnToTodo)
+  def backToTodo: Task = {
+    require(canBackToTodo)
     copy(status = Status.Todo)
   }
 }

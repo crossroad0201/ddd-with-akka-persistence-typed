@@ -3,34 +3,34 @@ package example2.interfaceadapter
 import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import akka.persistence.testkit.scaladsl.EventSourcedBehaviorTestKit
 import com.typesafe.config.ConfigFactory
-import example2.domain.TaskEvent.{Created, Done, ReturnedToTodo, SubjectEdited}
+import example2.domain.TaskEvent.{ BackedToTodo, Created, Done, SubjectEdited }
 import example2.domain._
-import example2.interfaceadapter.TaskPersistenceBehavior.{Empty, Just, State}
+import example2.interfaceadapter.TaskPersistenceBehavior.{ Empty, Just, State }
 import example2.interfaceadapter.TaskProtocol._
 import org.scalatest.diagrams.Diagrams
 import org.scalatest.freespec.AnyFreeSpecLike
 
 class TaskPersistenceBehaviorSpec
-  extends ScalaTestWithActorTestKit(
-    EventSourcedBehaviorTestKit.config
-      .withFallback(
-        // NOTE Enable Java Serialization in this test.
-        ConfigFactory.parseString(
-          """
+    extends ScalaTestWithActorTestKit(
+      EventSourcedBehaviorTestKit.config
+        .withFallback(
+          // NOTE Enable Java Serialization in this test.
+          ConfigFactory.parseString(
+            """
             |akka.actor {
             |  allow-java-serialization = yes
             |  warn-about-java-serializer-usage = false
             |}
             |""".stripMargin
+          )
         )
-      )
-  )
+    )
     with AnyFreeSpecLike
     with Diagrams {
 
   def createSutWithState(
-    id: TaskId,
-    initialState: TaskId => State
+      id: TaskId,
+      initialState: TaskId => State
   ): EventSourcedBehaviorTestKit[Command, TaskEvent, State] =
     EventSourcedBehaviorTestKit(
       system,
@@ -258,13 +258,13 @@ class TaskPersistenceBehaviorSpec
     }
   }
 
-  "ReturnToTodo" - {
+  "BackToTodo" - {
     "In Empty state" - {
       "Should reply failed by does not exists." in {
         val sut = createSutWithState(TaskId("1"), id => Empty(id))
 
-        val actual = sut.runCommand[ReturnToTodoReply] { replyTo =>
-          ReturnToTodo(replyTo)
+        val actual = sut.runCommand[BackToTodoReply] { replyTo =>
+          BackToTodo(replyTo)
         }
 
         assert(actual.reply == FailedByDoesNotExists)
@@ -287,12 +287,12 @@ class TaskPersistenceBehaviorSpec
             )
         )
 
-        val actual = sut.runCommand[ReturnToTodoReply] { replyTo =>
-          ReturnToTodo(replyTo)
+        val actual = sut.runCommand[BackToTodoReply] { replyTo =>
+          BackToTodo(replyTo)
         }
 
-        assert(actual.reply == ReturnToTodoSucceeded)
-        assert(actual.event == ReturnedToTodo)
+        assert(actual.reply == BackToTodoSucceeded)
+        assert(actual.event == BackedToTodo)
         assert(
           actual.state == Just(
             Task(
@@ -317,11 +317,11 @@ class TaskPersistenceBehaviorSpec
             )
         )
 
-        val actual = sut.runCommand[ReturnToTodoReply] { replyTo =>
-          ReturnToTodo(replyTo)
+        val actual = sut.runCommand[BackToTodoReply] { replyTo =>
+          BackToTodo(replyTo)
         }
 
-        assert(actual.reply == ReturnToTodoFailedByStillNotDone)
+        assert(actual.reply == BackToTodoFailedByStillNotDone)
         assert(actual.hasNoEvents)
         assert(
           actual.state == Just(

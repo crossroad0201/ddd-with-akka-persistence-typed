@@ -1,7 +1,7 @@
 package example2.domain
 
-import example2.domain.Task.{ EditSubjectErrorByAlreadyDone, ReturnToTodoErrorByStillNotDone, ToDoneErrorByAlreadyDone }
-import example2.domain.TaskEvent.{ Created, Done, ReturnedToTodo, SubjectEdited }
+import example2.domain.Task.{ BackToTodoErrorByStillNotDone$, EditSubjectErrorByAlreadyDone, ToDoneErrorByAlreadyDone }
+import example2.domain.TaskEvent.{ BackedToTodo, Created, Done, SubjectEdited }
 import org.scalatest.freespec.AnyFreeSpec
 
 class TaskSpec extends AnyFreeSpec {
@@ -138,7 +138,7 @@ class TaskSpec extends AnyFreeSpec {
     }
   }
 
-  "returnToTodo" - {
+  "backToTodo" - {
     "Should can change status to todo if status is done." in {
       val sut: Task =
         for {
@@ -154,11 +154,11 @@ class TaskSpec extends AnyFreeSpec {
         } yield task.applyDone(done)
       assert(sut.status == Status.Done)
 
-      val actualEvent = sut.returnToTodo
+      val actualEvent = sut.backToTodo
 
-      assert(actualEvent == Right(ReturnedToTodo))
+      assert(actualEvent == Right(BackedToTodo))
 
-      val actualState = sut.applyReturnedToTodo(actualEvent)
+      val actualState = sut.applyBackedToTodo(actualEvent)
 
       assert(
         actualState == Task(
@@ -178,9 +178,9 @@ class TaskSpec extends AnyFreeSpec {
       )
       assert(sut.status == Status.Todo)
 
-      val actualEvent = sut.returnToTodo
+      val actualEvent = sut.backToTodo
 
-      assert(actualEvent == Left(ReturnToTodoErrorByStillNotDone))
+      assert(actualEvent == Left(BackToTodoErrorByStillNotDone$))
     }
   }
 

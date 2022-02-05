@@ -8,7 +8,7 @@ object TaskProtocol {
   sealed trait Command
   sealed trait Reply
 
-  case object FailedByDoesNotExists extends Reply with EditSubjectReply with ToDoneReply with ReturnToTodoReply
+  case object FailedByDoesNotExists extends Reply with EditSubjectReply with ToDoneReply with BackToTodoReply
   sealed trait RequireCreated {
     val replyTo: ActorRef[FailedByDoesNotExists.type]
   }
@@ -38,12 +38,12 @@ object TaskProtocol {
   case object ToDoneSucceeded extends ToDoneReply
   case object ToDoneFailedByAlreadyDone extends ToDoneReply
 
-  case class ReturnToTodo(
-      replyTo: ActorRef[ReturnToTodoReply]
+  case class BackToTodo(
+      replyTo: ActorRef[BackToTodoReply]
   ) extends Command
       with RequireCreated
-  sealed trait ReturnToTodoReply extends Reply
-  case object ReturnToTodoSucceeded extends ReturnToTodoReply
-  case object ReturnToTodoFailedByStillNotDone extends ReturnToTodoReply
+  sealed trait BackToTodoReply extends Reply
+  case object BackToTodoSucceeded$ extends BackToTodoReply
+  case object BackToTodoFailedByStillNotDone$ extends BackToTodoReply
 
 }

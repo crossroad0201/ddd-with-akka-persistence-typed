@@ -18,6 +18,6 @@ object TaskEvent {
 
   case object Done extends TaskEvent
 
-  case object ReturnedToTodo extends TaskEvent
+  case object BackedToTodo extends TaskEvent
 
 }

@@ -19,7 +19,7 @@ object TaskEvent {
     val status = Status.Done
   }
 
-  case object ReturnedToTodo extends TaskEvent {
+  case object BackedToTodo extends TaskEvent {
     val status = Status.Todo
   }
 

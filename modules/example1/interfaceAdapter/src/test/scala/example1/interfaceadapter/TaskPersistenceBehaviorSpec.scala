@@ -4,7 +4,7 @@ import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import akka.persistence.testkit.scaladsl.EventSourcedBehaviorTestKit
 import com.typesafe.config.ConfigFactory
 import example1.domain.{ Status, Subject, Task, TaskId }
-import example1.interfaceadapter.TaskEvent.{ Created, Done, ReturnedToTodo, SubjectEdited }
+import example1.interfaceadapter.TaskEvent.{ BackedToTodo, Created, Done, SubjectEdited }
 import example1.interfaceadapter.TaskPersistenceBehavior.{ Empty, Just, State }
 import example1.interfaceadapter.TaskProtocol._
 import org.scalatest.diagrams.Diagrams
@@ -256,13 +256,13 @@ class TaskPersistenceBehaviorSpec
     }
   }
 
-  "ReturnToTodo" - {
+  "BackToTodo" - {
     "In Empty state" - {
       "Should reply failed by does not exists." in {
         val sut = createSutWithState(TaskId("1"), id => Empty(id))
 
-        val actual = sut.runCommand[ReturnToTodoReply] { replyTo =>
-          ReturnToTodo(replyTo)
+        val actual = sut.runCommand[BackToTodoReply] { replyTo =>
+          BackToTodo(replyTo)
         }
 
         assert(actual.reply == FailedByDoesNotExists)
@@ -285,12 +285,12 @@ class TaskPersistenceBehaviorSpec
             )
         )
 
-        val actual = sut.runCommand[ReturnToTodoReply] { replyTo =>
-          ReturnToTodo(replyTo)
+        val actual = sut.runCommand[BackToTodoReply] { replyTo =>
+          BackToTodo(replyTo)
         }
 
-        assert(actual.reply == ReturnToTodoSucceeded)
-        assert(actual.event == ReturnedToTodo)
+        assert(actual.reply == BackToTodoSucceeded$)
+        assert(actual.event == BackedToTodo)
         assert(
           actual.state == Just(
             Task(
@@ -315,11 +315,11 @@ class TaskPersistenceBehaviorSpec
             )
         )
 
-        val actual = sut.runCommand[ReturnToTodoReply] { replyTo =>
-          ReturnToTodo(replyTo)
+        val actual = sut.runCommand[BackToTodoReply] { replyTo =>
+          BackToTodo(replyTo)
         }
 
-        assert(actual.reply == ReturnToTodoFailedByStillNotDone)
+        assert(actual.reply == BackToTodoFailedByStillNotDone$)
         assert(actual.hasNoEvents)
         assert(
           actual.state == Just(
