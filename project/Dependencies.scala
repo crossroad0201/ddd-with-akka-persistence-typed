@@ -7,7 +7,10 @@ object Dependencies {
 
     object Typed {
       val actor = "com.typesafe.akka" %% "akka-actor-typed" % version
+      val persistence = "com.typesafe.akka" %% "akka-persistence-typed" % version
+
       val actorTestKit = "com.typesafe.akka" %% "akka-actor-testkit-typed" % version
+      val persistenceTestKit = "com.typesafe.akka" %% "akka-persistence-testkit" % version
     }
   }
 

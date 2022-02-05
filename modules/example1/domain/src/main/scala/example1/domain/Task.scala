@@ -5,6 +5,9 @@ case class Task(
     subject: Subject,
     status: Status
 ) {
+  // NOTE The domain object must define 2 methods for a behavior.
+  // One is check the behavior is executable.
+  // Another one is execute the behavior and return new state.
   def canEditSubject: Boolean =
     status != Status.Done
 

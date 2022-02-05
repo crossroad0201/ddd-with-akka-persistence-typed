@@ -38,8 +38,10 @@ lazy val example1InterfaceAdapter =
     .settings(
       libraryDependencies ++= Seq(
         Akka.Typed.actor,
+        Akka.Typed.persistence,
         Logback.classic,
-        Akka.Typed.actorTestKit % Test
+        Akka.Typed.actorTestKit % Test,
+        Akka.Typed.persistenceTestKit % Test
       )
     )
     .dependsOn(example1Domain)
