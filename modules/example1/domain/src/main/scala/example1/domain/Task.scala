@@ -33,8 +33,8 @@ case class Task(
   }
 }
 object Task {
-  def create(id: TaskId, subject: Subject): Task =
-    Task(id, subject, Status.Todo)
+  def create(id: TaskId, subject: Subject, status: Status = Status.Todo): Task =
+    Task(id, subject, status)
 }
 
 case class TaskId(value: String)

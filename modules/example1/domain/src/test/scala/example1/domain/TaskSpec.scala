@@ -144,7 +144,7 @@ class TaskSpec extends AnyFreeSpecLike with Diagrams {
       }
     }
 
-    "Should be can not it if status is done." in {
+    "Should be can not it if status is todo." in {
       val sut = Task
         .create(
           TaskId("1"),

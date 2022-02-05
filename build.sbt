@@ -63,7 +63,7 @@ lazy val example2InterfaceAdapter =
         Akka.Typed.persistenceTestKit % Test
       )
     )
-    .dependsOn(example1Domain)
+    .dependsOn(example2Domain)
 
 lazy val root = (project in file("."))
   .aggregate(

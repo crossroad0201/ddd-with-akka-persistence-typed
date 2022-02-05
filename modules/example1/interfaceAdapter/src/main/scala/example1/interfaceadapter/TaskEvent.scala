@@ -1,6 +1,6 @@
 package example1.interfaceadapter
 
-import example1.domain.Subject
+import example1.domain.{ Status, Subject }
 
 // NOTE Define the events in interface adapter layer. (not domain layer)
 sealed trait TaskEvent
@@ -8,7 +8,8 @@ sealed trait TaskEvent
 object TaskEvent {
 
   case class Created(
-      subject: Subject
+      subject: Subject,
+      status: Status = Status.Todo
   ) extends TaskEvent
 
   case class SubjectEdited(

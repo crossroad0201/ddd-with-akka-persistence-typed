@@ -79,8 +79,8 @@ object TaskPersistenceBehavior {
 
   def eventHandler(state: State, event: TaskEvent): State =
     (state, event) match {
-      case (Empty(id), Created(subject)) =>
-        Just(Task.create(id, subject))
+      case (Empty(id), Created(subject, state)) =>
+        Just(Task.create(id, subject, state))
       case (Just(entity), SubjectEdited(newSubject)) =>
         Just(entity.editSubject(newSubject))
       case (Just(entity), Done) =>
