@@ -2,7 +2,9 @@ package example4
 
 package object domain {
 
-  // NOTE Events have play method for create entity or update state.
+  // NOTE There are 2 types of event.
+  // One is a entity created event, that have play function for create new entity.
+  // Another one is a entity updated event, that have playTo function for mutate exists entity.
   trait EntityCreationEvent[ENTITY] {
     def play: ENTITY
   }
@@ -10,7 +12,8 @@ package object domain {
     def playTo(entity: ENTITY): ENTITY
   }
 
-  // NOTE Result have event, and function that return new updated state.
+  // NOTE Result have event, and function for evaluate new state.
+  // The entity function do not evaluate from persistent actor.
   trait Result[EVENT, ENTITY] {
     val event: EVENT
     def entity: ENTITY

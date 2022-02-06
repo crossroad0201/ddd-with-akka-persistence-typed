@@ -3,13 +3,8 @@ package example3.domain
 // NOTE Define the events in domain layer.
 sealed trait TaskEvent
 
-// NOTE Events have play method for create entity or update state.
-trait TaskCreationEvent {
-  def play: Task
-}
-trait TaskMutationEvent {
-  def playTo(entity: Task): Task
-}
+trait TaskCreationEvent extends TaskEvent with EntityCreationEvent[Task]
+trait TaskMutationEvent extends TaskEvent with EntityMutationEvent[Task]
 
 object TaskEvent {
 
