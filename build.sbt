@@ -58,6 +58,24 @@ lazy val example2InterfaceAdapter =
     )
     .dependsOn(example2Domain)
 
+lazy val example5Domain =
+  (project in file("modules/example5/domain"))
+  .settings(baseSettings)
+
+lazy val example5InterfaceAdapter =
+  (project in file("modules/example5/interfaceAdapter"))
+    .settings(baseSettings)
+    .settings(
+      libraryDependencies ++= Seq(
+        Akka.Typed.actor,
+        Akka.Typed.persistence,
+        Logback.classic,
+        Akka.Typed.actorTestKit % Test,
+        Akka.Typed.persistenceTestKit % Test
+      )
+    )
+    .dependsOn(example5Domain)
+
 lazy val example3Domain =
   (project in file("modules/example3/domain"))
     .settings(baseSettings)
@@ -99,7 +117,8 @@ lazy val root = (project in file("."))
     example1Domain, example1InterfaceAdapter,
     example2Domain, example2InterfaceAdapter,
     example3Domain, example3InterfaceAdapter,
-    example4Domain, example4InterfaceAdapter
+    example4Domain, example4InterfaceAdapter,
+    example5Domain, example5InterfaceAdapter
   )
   .settings(baseSettings)
   .settings(
