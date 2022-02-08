@@ -29,7 +29,7 @@ object TaskPersistenceBehavior {
       eventHandler
     )
 
-  def commandHandler(
+  private def commandHandler(
       state: State,
       command: Command
   ): ReplyEffect[TaskEvent, State] =
@@ -37,7 +37,7 @@ object TaskPersistenceBehavior {
       case (Empty(id), Create(subject, replyTo)) =>
         Effect
           .persist(
-            Task.create(id, subject)
+            Task.create(id, subject).event
           )
           .thenReply(replyTo)(_ => CreateSucceeded)
 
@@ -51,9 +51,9 @@ object TaskPersistenceBehavior {
 
       case (Just(entity), EditSubject(newSubject, replyTo)) =>
         entity.editSubject(newSubject) match {
-          case Right(event) =>
+          case Right(result) =>
             Effect
-              .persist(event)
+              .persist(result.event)
               .thenReply(replyTo)(_ => EditSubjectSucceeded)
           case Left(EditSubjectErrorByAlreadyDone) =>
             Effect
@@ -62,9 +62,9 @@ object TaskPersistenceBehavior {
 
       case (Just(entity), ToDone(replyTo)) =>
         entity.toDone match {
-          case Right(event) =>
+          case Right(result) =>
             Effect
-              .persist(event)
+              .persist(result.event)
               .thenReply(replyTo)(_ => ToDoneSucceeded)
           case Left(ToDoneErrorByAlreadyDone) =>
             Effect
@@ -73,9 +73,9 @@ object TaskPersistenceBehavior {
 
       case (Just(entity), BackToTodo(replyTo)) =>
         entity.backToTodo match {
-          case Right(event) =>
+          case Right(result) =>
             Effect
-              .persist(event)
+              .persist(result.event)
               .thenReply(replyTo)(_ => BackToTodoSucceeded)
           case Left(BackToTodoErrorByStillNotDone$) =>
             Effect
@@ -89,9 +89,9 @@ object TaskPersistenceBehavior {
   def eventHandler(state: State, event: TaskEvent): State =
     (state, event) match {
       case (Empty(_), event: TaskCreationEvent) =>
-        Just(Task.applyEvent(event))
+        Just(event.play)
       case (Just(entity), event: TaskMutationEvent) =>
-        Just(entity.applyEvent(event))
+        Just(event.playTo(entity))
       case _ =>
         throw new IllegalArgumentException()
     }

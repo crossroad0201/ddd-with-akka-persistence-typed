@@ -1,14 +1,7 @@
 package example4.domain
 
-import Task.{
-  BackToTodoError,
-  BackToTodoErrorByStillNotDone$,
-  EditSubjectError,
-  EditSubjectErrorByAlreadyDone,
-  ToDoneError,
-  ToDoneErrorByAlreadyDone
-}
-import TaskEvent.{ BackedToTodo, Created, Done, SubjectEdited }
+import example4.domain.Task._
+import example4.domain.TaskEvent.{ BackedToTodo, Created, Done, SubjectEdited }
 
 case class Task(
     id: TaskId,
@@ -17,28 +10,28 @@ case class Task(
 ) {
   def editSubject(
       newSubject: Subject
-  ): Either[EditSubjectError, Result[SubjectEdited, Task]] =
-    if (status == Status.Todo) {
-      Right(Result(SubjectEdited(newSubject), Task.this))
-    } else
+  ): Either[EditSubjectError, SubjectEdited] =
+    if (status == Status.Todo)
+      Right(SubjectEdited(newSubject))
+    else
       Left(EditSubjectErrorByAlreadyDone)
 
-  def toDone: Either[ToDoneError, Result[Done.type, Task]] =
+  def toDone: Either[ToDoneError, Done.type] =
     if (status == Status.Todo)
-      Right(Result(Done, Task.this))
+      Right(Done)
     else
       Left(ToDoneErrorByAlreadyDone)
 
-  def backToTodo: Either[BackToTodoError, Result[BackedToTodo.type, Task]] =
+  def backToTodo: Either[BackToTodoError, BackedToTodo.type] =
     if (status == Status.Done)
-      Right(Result(BackedToTodo, Task.this))
+      Right(BackedToTodo)
     else
       Left(BackToTodoErrorByStillNotDone$)
 
 }
 object Task {
-  def create(id: TaskId, subject: Subject): Result[Created, Task] =
-    Result(Created(id, subject, Status.Todo))
+  def create(id: TaskId, subject: Subject): Created =
+    Created(id, subject, Status.Todo)
 
   sealed trait EditSubjectError
   case object EditSubjectErrorByAlreadyDone extends EditSubjectError

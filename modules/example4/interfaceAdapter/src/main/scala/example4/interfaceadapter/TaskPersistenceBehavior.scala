@@ -4,24 +4,8 @@ import akka.actor.typed.Behavior
 import akka.persistence.typed.PersistenceId
 import akka.persistence.typed.scaladsl.{ Effect, EventSourcedBehavior, ReplyEffect }
 import example4.domain.Task.{ BackToTodoErrorByStillNotDone$, EditSubjectErrorByAlreadyDone, ToDoneErrorByAlreadyDone }
-import example4.domain.{ Task, TaskCreationEvent, TaskEvent, TaskId, TaskMutationEvent }
-import example4.interfaceadapter.TaskProtocol.{
-  BackToTodo,
-  BackToTodoFailedByStillNotDone,
-  BackToTodoSucceeded,
-  Command,
-  Create,
-  CreateFailedByAlreadyExists,
-  CreateSucceeded,
-  EditSubject,
-  EditSubjectFailedByAlreadyDone,
-  EditSubjectSucceeded,
-  FailedByDoesNotExists,
-  RequireCreated,
-  ToDone,
-  ToDoneFailedByAlreadyDone,
-  ToDoneSucceeded
-}
+import example4.domain._
+import example4.interfaceadapter.TaskProtocol._
 
 object TaskPersistenceBehavior {
 
@@ -45,7 +29,7 @@ object TaskPersistenceBehavior {
       eventHandler
     )
 
-  private def commandHandler(
+  def commandHandler(
       state: State,
       command: Command
   ): ReplyEffect[TaskEvent, State] =
@@ -53,7 +37,7 @@ object TaskPersistenceBehavior {
       case (Empty(id), Create(subject, replyTo)) =>
         Effect
           .persist(
-            Task.create(id, subject).event
+            Task.create(id, subject)
           )
           .thenReply(replyTo)(_ => CreateSucceeded)
 
@@ -67,9 +51,9 @@ object TaskPersistenceBehavior {
 
       case (Just(entity), EditSubject(newSubject, replyTo)) =>
         entity.editSubject(newSubject) match {
-          case Right(result) =>
+          case Right(event) =>
             Effect
-              .persist(result.event)
+              .persist(event)
               .thenReply(replyTo)(_ => EditSubjectSucceeded)
           case Left(EditSubjectErrorByAlreadyDone) =>
             Effect
@@ -78,9 +62,9 @@ object TaskPersistenceBehavior {
 
       case (Just(entity), ToDone(replyTo)) =>
         entity.toDone match {
-          case Right(result) =>
+          case Right(event) =>
             Effect
-              .persist(result.event)
+              .persist(event)
               .thenReply(replyTo)(_ => ToDoneSucceeded)
           case Left(ToDoneErrorByAlreadyDone) =>
             Effect
@@ -89,9 +73,9 @@ object TaskPersistenceBehavior {
 
       case (Just(entity), BackToTodo(replyTo)) =>
         entity.backToTodo match {
-          case Right(result) =>
+          case Right(event) =>
             Effect
-              .persist(result.event)
+              .persist(event)
               .thenReply(replyTo)(_ => BackToTodoSucceeded)
           case Left(BackToTodoErrorByStillNotDone$) =>
             Effect

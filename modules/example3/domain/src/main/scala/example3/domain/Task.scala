@@ -1,14 +1,7 @@
 package example3.domain
 
-import Task.{
-  BackToTodoError,
-  BackToTodoErrorByStillNotDone$,
-  EditSubjectError,
-  EditSubjectErrorByAlreadyDone,
-  ToDoneError,
-  ToDoneErrorByAlreadyDone
-}
-import TaskEvent.{ BackedToTodo, Created, Done, SubjectEdited }
+import example3.domain.Task._
+import example3.domain.TaskEvent.{ BackedToTodo, Created, Done, SubjectEdited }
 
 case class Task(
     id: TaskId,
@@ -35,10 +28,21 @@ case class Task(
     else
       Left(BackToTodoErrorByStillNotDone$)
 
+  def applyEvent(event: TaskMutationEvent): Task =
+    event match {
+      case SubjectEdited(newSubject) => copy(subject = newSubject)
+      case event: Done.type          => copy(status = event.status)
+      case event: BackedToTodo.type  => copy(status = event.status)
+    }
 }
 object Task {
   def create(id: TaskId, subject: Subject): Created =
     Created(id, subject, Status.Todo)
+
+  def applyEvent(event: TaskCreationEvent): Task =
+    event match {
+      case Created(id, subject, status) => Task(id, subject, status)
+    }
 
   sealed trait EditSubjectError
   case object EditSubjectErrorByAlreadyDone extends EditSubjectError

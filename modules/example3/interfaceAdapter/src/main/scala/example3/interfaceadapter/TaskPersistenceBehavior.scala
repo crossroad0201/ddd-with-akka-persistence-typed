@@ -4,24 +4,8 @@ import akka.actor.typed.Behavior
 import akka.persistence.typed.PersistenceId
 import akka.persistence.typed.scaladsl.{ Effect, EventSourcedBehavior, ReplyEffect }
 import example3.domain.Task.{ BackToTodoErrorByStillNotDone$, EditSubjectErrorByAlreadyDone, ToDoneErrorByAlreadyDone }
-import example3.domain.{ Task, TaskCreationEvent, TaskEvent, TaskId, TaskMutationEvent }
-import example3.interfaceadapter.TaskProtocol.{
-  BackToTodo,
-  BackToTodoFailedByStillNotDone,
-  BackToTodoSucceeded,
-  Command,
-  Create,
-  CreateFailedByAlreadyExists,
-  CreateSucceeded,
-  EditSubject,
-  EditSubjectFailedByAlreadyDone,
-  EditSubjectSucceeded,
-  FailedByDoesNotExists,
-  RequireCreated,
-  ToDone,
-  ToDoneFailedByAlreadyDone,
-  ToDoneSucceeded
-}
+import example3.domain._
+import example3.interfaceadapter.TaskProtocol._
 
 object TaskPersistenceBehavior {
 
@@ -105,9 +89,9 @@ object TaskPersistenceBehavior {
   def eventHandler(state: State, event: TaskEvent): State =
     (state, event) match {
       case (Empty(_), event: TaskCreationEvent) =>
-        Just(event.play)
+        Just(Task.applyEvent(event))
       case (Just(entity), event: TaskMutationEvent) =>
-        Just(event.playTo(entity))
+        Just(entity.applyEvent(event))
       case _ =>
         throw new IllegalArgumentException()
     }

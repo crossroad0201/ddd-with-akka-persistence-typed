@@ -22,6 +22,7 @@ lazy val baseSettings = Seq(
   semanticdbVersion := scalafixSemanticdb.revision
 )
 
+// ----------------------------------------------------------------------------
 lazy val example1Domain =
   (project in file("modules/example1/domain"))
   .settings(baseSettings)
@@ -39,6 +40,8 @@ lazy val example1InterfaceAdapter =
       )
     )
     .dependsOn(example1Domain)
+
+// ----------------------------------------------------------------------------
 
 lazy val example2Domain =
   (project in file("modules/example2/domain"))
@@ -58,27 +61,11 @@ lazy val example2InterfaceAdapter =
     )
     .dependsOn(example2Domain)
 
-lazy val example5Domain =
-  (project in file("modules/example5/domain"))
-  .settings(baseSettings)
-
-lazy val example5InterfaceAdapter =
-  (project in file("modules/example5/interfaceAdapter"))
-    .settings(baseSettings)
-    .settings(
-      libraryDependencies ++= Seq(
-        Akka.Typed.actor,
-        Akka.Typed.persistence,
-        Logback.classic,
-        Akka.Typed.actorTestKit % Test,
-        Akka.Typed.persistenceTestKit % Test
-      )
-    )
-    .dependsOn(example5Domain)
+// ----------------------------------------------------------------------------
 
 lazy val example3Domain =
   (project in file("modules/example3/domain"))
-    .settings(baseSettings)
+  .settings(baseSettings)
 
 lazy val example3InterfaceAdapter =
   (project in file("modules/example3/interfaceAdapter"))
@@ -93,6 +80,8 @@ lazy val example3InterfaceAdapter =
       )
     )
     .dependsOn(example3Domain)
+
+// ----------------------------------------------------------------------------
 
 lazy val example4Domain =
   (project in file("modules/example4/domain"))
@@ -111,6 +100,29 @@ lazy val example4InterfaceAdapter =
       )
     )
     .dependsOn(example4Domain)
+
+// ----------------------------------------------------------------------------
+
+lazy val example5Domain =
+  (project in file("modules/example5/domain"))
+    .settings(baseSettings)
+
+lazy val example5InterfaceAdapter =
+  (project in file("modules/example5/interfaceAdapter"))
+    .settings(baseSettings)
+    .settings(
+      libraryDependencies ++= Seq(
+        Akka.Typed.actor,
+        Akka.Typed.persistence,
+        Logback.classic,
+        Akka.Typed.actorTestKit % Test,
+        Akka.Typed.persistenceTestKit % Test
+      )
+    )
+    .dependsOn(example5Domain)
+
+
+// ----------------------------------------------------------------------------
 
 lazy val root = (project in file("."))
   .aggregate(

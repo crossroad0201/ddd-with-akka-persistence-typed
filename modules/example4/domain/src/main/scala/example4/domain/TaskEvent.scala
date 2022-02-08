@@ -12,25 +12,27 @@ object TaskEvent {
       id: TaskId,
       subject: Subject,
       status: Status
-  ) extends TaskCreationEvent {
+  ) extends TaskEvent
+      with TaskCreationEvent {
     override def play: Task =
       Task(id, subject, status)
   }
 
   case class SubjectEdited(
       newSubject: Subject
-  ) extends TaskMutationEvent {
+  ) extends TaskEvent
+      with TaskMutationEvent {
     override def playTo(entity: Task): Task =
       entity.copy(subject = newSubject)
   }
 
-  case object Done extends TaskMutationEvent {
+  case object Done extends TaskEvent with TaskMutationEvent {
     val status = Status.Done
     override def playTo(entity: Task): Task =
       entity.copy(status = status)
   }
 
-  case object BackedToTodo extends TaskMutationEvent {
+  case object BackedToTodo extends TaskEvent with TaskMutationEvent {
     val status = Status.Todo
     override def playTo(entity: Task): Task =
       entity.copy(status = status)

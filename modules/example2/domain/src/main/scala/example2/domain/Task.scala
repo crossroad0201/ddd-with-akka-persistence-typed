@@ -1,13 +1,6 @@
 package example2.domain
 
-import example2.domain.Task.{
-  BackToTodoError,
-  BackToTodoErrorByStillNotDone$,
-  EditSubjectError,
-  EditSubjectErrorByAlreadyDone,
-  ToDoneError,
-  ToDoneErrorByAlreadyDone
-}
+import example2.domain.Task._
 import example2.domain.TaskEvent.{ BackedToTodo, Created, Done, SubjectEdited }
 
 case class Task(

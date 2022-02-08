@@ -1,13 +1,6 @@
 package example5.domain
 
-import example5.domain.Task.{
-  BackToTodoError,
-  BackToTodoErrorByStillNotDone$,
-  EditSubjectError,
-  EditSubjectErrorByAlreadyDone,
-  ToDoneError,
-  ToDoneErrorByAlreadyDone
-}
+import example5.domain.Task._
 import example5.domain.TaskEvent.{ BackedToTodo, Created, Done, SubjectEdited }
 
 case class Task(
@@ -17,39 +10,28 @@ case class Task(
 ) {
   def editSubject(
       newSubject: Subject
-  ): Either[EditSubjectError, SubjectEdited] =
-    if (status == Status.Todo)
-      Right(SubjectEdited(newSubject))
-    else
+  ): Either[EditSubjectError, Result[SubjectEdited, Task]] =
+    if (status == Status.Todo) {
+      Right(Result(SubjectEdited(newSubject), Task.this))
+    } else
       Left(EditSubjectErrorByAlreadyDone)
 
-  def toDone: Either[ToDoneError, Done.type] =
+  def toDone: Either[ToDoneError, Result[Done.type, Task]] =
     if (status == Status.Todo)
-      Right(Done)
+      Right(Result(Done, Task.this))
     else
       Left(ToDoneErrorByAlreadyDone)
 
-  def backToTodo: Either[BackToTodoError, BackedToTodo.type] =
+  def backToTodo: Either[BackToTodoError, Result[BackedToTodo.type, Task]] =
     if (status == Status.Done)
-      Right(BackedToTodo)
+      Right(Result(BackedToTodo, Task.this))
     else
       Left(BackToTodoErrorByStillNotDone$)
 
-  def applyEvent(event: TaskMutationEvent): Task =
-    event match {
-      case SubjectEdited(newSubject) => copy(subject = newSubject)
-      case event: Done.type => copy(status = event.status)
-      case event: BackedToTodo.type => copy(status = event.status)
-    }
 }
 object Task {
-  def create(id: TaskId, subject: Subject): Created =
-    Created(id, subject, Status.Todo)
-
-  def applyEvent(event: TaskCreationEvent): Task =
-    event match {
-      case Created(id, subject, status) => Task(id, subject, status)
-    }
+  def create(id: TaskId, subject: Subject): Result[Created, Task] =
+    Result(Created(id, subject, Status.Todo))
 
   sealed trait EditSubjectError
   case object EditSubjectErrorByAlreadyDone extends EditSubjectError

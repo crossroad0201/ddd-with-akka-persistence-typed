@@ -12,23 +12,21 @@ class TaskSpec extends AnyFreeSpec with Diagrams {
 
   "create" - {
     "Should be create a new task with initial status." in {
-      val actualEvent = Task.create(
+      val actual = Task.create(
         TaskId("1"),
         Subject("Test")
       )
 
       assert(
-        actualEvent == Created(
+        actual.event == Created(
           TaskId("1"),
           Subject("Test"),
           Status.Todo
         )
       )
 
-      val actualState = Task.applyEvent(actualEvent)
-
       assert(
-        actualState == Task(
+        actual.entity == Task(
           TaskId("1"),
           Subject("Test"),
           Status.Todo
@@ -39,30 +37,28 @@ class TaskSpec extends AnyFreeSpec with Diagrams {
 
   "editSubject" - {
     "Should can modify subject if status is todo." in {
-      val sut = Task.applyEvent(
-        Task.create(
-          TaskId("1"),
-          Subject("Test")
-        )
-      )
+      val sut =
+        Task
+          .create(
+            TaskId("1"),
+            Subject("Test")
+          )
+          .entity
       assert(sut.status == Status.Todo)
 
-      val actualEvent = sut.editSubject(
+      val actual = sut.editSubject(
         Subject("Edited")
       )
 
+      assert(actual.isRight)
       assert(
-        actualEvent == Right(
+        actual.event ==
           SubjectEdited(
             Subject("Edited")
           )
-        )
       )
-
-      val actualState = sut.applyEvent(actualEvent)
-
       assert(
-        actualState == Task(
+        actual.entity == Task(
           TaskId("1"),
           Subject("Edited"),
           Status.Todo
@@ -74,43 +70,42 @@ class TaskSpec extends AnyFreeSpec with Diagrams {
       val sut: Task =
         for {
           task <- Right(
-            Task.applyEvent(
-              Task.create(
+            Task
+              .create(
                 TaskId("1"),
                 Subject("Test")
               )
-            )
+              .entity
           )
           done <- task.toDone
-        } yield task.applyEvent(done)
+        } yield done.entity
       assert(sut.status == Status.Done)
 
-      val actualEvent = sut.editSubject(
+      val actual = sut.editSubject(
         Subject("Edited")
       )
 
-      assert(actualEvent == Left(EditSubjectErrorByAlreadyDone))
+      assert(actual == Left(EditSubjectErrorByAlreadyDone))
     }
   }
 
   "toDone" - {
     "Should can change status to done if status is todo." in {
-      val sut = Task.applyEvent(
-        Task.create(
-          TaskId("1"),
-          Subject("Test")
-        )
-      )
+      val sut =
+        Task
+          .create(
+            TaskId("1"),
+            Subject("Test")
+          )
+          .entity
       assert(sut.status == Status.Todo)
 
-      val actualEvent = sut.toDone
+      val actual = sut.toDone
 
-      assert(actualEvent == Right(Done))
-
-      val actualState = sut.applyEvent(actualEvent)
-
+      assert(actual.isRight)
+      assert(actual.event == Done)
       assert(
-        actualState == Task(
+        actual.entity == Task(
           TaskId("1"),
           Subject("Test"),
           Status.Done
@@ -122,20 +117,20 @@ class TaskSpec extends AnyFreeSpec with Diagrams {
       val sut: Task =
         for {
           task <- Right(
-            Task.applyEvent(
-              Task.create(
+            Task
+              .create(
                 TaskId("1"),
                 Subject("Test")
               )
-            )
+              .entity
           )
           done <- task.toDone
-        } yield task.applyEvent(done)
+        } yield done.entity
       assert(sut.status == Status.Done)
 
-      val actualEvent = sut.toDone
+      val actual = sut.toDone
 
-      assert(actualEvent == Left(ToDoneErrorByAlreadyDone))
+      assert(actual == Left(ToDoneErrorByAlreadyDone))
     }
   }
 
@@ -144,25 +139,23 @@ class TaskSpec extends AnyFreeSpec with Diagrams {
       val sut: Task =
         for {
           task <- Right(
-            Task.applyEvent(
-              Task.create(
+            Task
+              .create(
                 TaskId("1"),
                 Subject("Test")
               )
-            )
+              .entity
           )
           done <- task.toDone
-        } yield task.applyEvent(done)
+        } yield done.entity
       assert(sut.status == Status.Done)
 
-      val actualEvent = sut.backToTodo
+      val actual = sut.backToTodo
 
-      assert(actualEvent == Right(BackedToTodo))
-
-      val actualState = sut.applyEvent(actualEvent)
-
+      assert(actual.isRight)
+      assert(actual.event == BackedToTodo)
       assert(
-        actualState == Task(
+        actual.entity == Task(
           TaskId("1"),
           Subject("Test"),
           Status.Todo
@@ -171,17 +164,18 @@ class TaskSpec extends AnyFreeSpec with Diagrams {
     }
 
     "Should be can not it if status is todo." in {
-      val sut = Task.applyEvent(
-        Task.create(
-          TaskId("1"),
-          Subject("Test")
-        )
-      )
+      val sut =
+        Task
+          .create(
+            TaskId("1"),
+            Subject("Test")
+          )
+          .entity
       assert(sut.status == Status.Todo)
 
-      val actualEvent = sut.backToTodo
+      val actual = sut.backToTodo
 
-      assert(actualEvent == Left(BackToTodoErrorByStillNotDone$))
+      assert(actual == Left(BackToTodoErrorByStillNotDone$))
     }
   }
 

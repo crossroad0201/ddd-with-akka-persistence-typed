@@ -12,21 +12,23 @@ class TaskSpec extends AnyFreeSpec with Diagrams {
 
   "create" - {
     "Should be create a new task with initial status." in {
-      val actual = Task.create(
+      val actualEvent = Task.create(
         TaskId("1"),
         Subject("Test")
       )
 
       assert(
-        actual.event == Created(
+        actualEvent == Created(
           TaskId("1"),
           Subject("Test"),
           Status.Todo
         )
       )
 
+      val actualState = actualEvent.play
+
       assert(
-        actual.entity == Task(
+        actualState == Task(
           TaskId("1"),
           Subject("Test"),
           Status.Todo
@@ -43,22 +45,25 @@ class TaskSpec extends AnyFreeSpec with Diagrams {
             TaskId("1"),
             Subject("Test")
           )
-          .entity
+          .play
       assert(sut.status == Status.Todo)
 
-      val actual = sut.editSubject(
+      val actualEvent = sut.editSubject(
         Subject("Edited")
       )
 
-      assert(actual.isRight)
       assert(
-        actual.event ==
+        actualEvent == Right(
           SubjectEdited(
             Subject("Edited")
           )
+        )
       )
+
+      val actualState = actualEvent.playTo(sut)
+
       assert(
-        actual.entity == Task(
+        actualState == Task(
           TaskId("1"),
           Subject("Edited"),
           Status.Todo
@@ -75,17 +80,17 @@ class TaskSpec extends AnyFreeSpec with Diagrams {
                 TaskId("1"),
                 Subject("Test")
               )
-              .entity
+              .play
           )
           done <- task.toDone
-        } yield done.entity
+        } yield done.playTo(task)
       assert(sut.status == Status.Done)
 
-      val actual = sut.editSubject(
+      val actualEvent = sut.editSubject(
         Subject("Edited")
       )
 
-      assert(actual == Left(EditSubjectErrorByAlreadyDone))
+      assert(actualEvent == Left(EditSubjectErrorByAlreadyDone))
     }
   }
 
@@ -97,15 +102,17 @@ class TaskSpec extends AnyFreeSpec with Diagrams {
             TaskId("1"),
             Subject("Test")
           )
-          .entity
+          .play
       assert(sut.status == Status.Todo)
 
-      val actual = sut.toDone
+      val actualEvent = sut.toDone
 
-      assert(actual.isRight)
-      assert(actual.event == Done)
+      assert(actualEvent == Right(Done))
+
+      val actualState = actualEvent.playTo(sut)
+
       assert(
-        actual.entity == Task(
+        actualState == Task(
           TaskId("1"),
           Subject("Test"),
           Status.Done
@@ -122,15 +129,15 @@ class TaskSpec extends AnyFreeSpec with Diagrams {
                 TaskId("1"),
                 Subject("Test")
               )
-              .entity
+              .play
           )
           done <- task.toDone
-        } yield done.entity
+        } yield done.playTo(task)
       assert(sut.status == Status.Done)
 
-      val actual = sut.toDone
+      val actualEvent = sut.toDone
 
-      assert(actual == Left(ToDoneErrorByAlreadyDone))
+      assert(actualEvent == Left(ToDoneErrorByAlreadyDone))
     }
   }
 
@@ -144,18 +151,20 @@ class TaskSpec extends AnyFreeSpec with Diagrams {
                 TaskId("1"),
                 Subject("Test")
               )
-              .entity
+              .play
           )
           done <- task.toDone
-        } yield done.entity
+        } yield done.playTo(task)
       assert(sut.status == Status.Done)
 
-      val actual = sut.backToTodo
+      val actualEvent = sut.backToTodo
 
-      assert(actual.isRight)
-      assert(actual.event == BackedToTodo)
+      assert(actualEvent == Right(BackedToTodo))
+
+      val actualState = actualEvent.playTo(sut)
+
       assert(
-        actual.entity == Task(
+        actualState == Task(
           TaskId("1"),
           Subject("Test"),
           Status.Todo
@@ -170,12 +179,12 @@ class TaskSpec extends AnyFreeSpec with Diagrams {
             TaskId("1"),
             Subject("Test")
           )
-          .entity
+          .play
       assert(sut.status == Status.Todo)
 
-      val actual = sut.backToTodo
+      val actualEvent = sut.backToTodo
 
-      assert(actual == Left(BackToTodoErrorByStillNotDone$))
+      assert(actualEvent == Left(BackToTodoErrorByStillNotDone$))
     }
   }
 

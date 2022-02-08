@@ -3,10 +3,8 @@ package example5.domain
 // NOTE Define the events in domain layer.
 sealed trait TaskEvent
 
-sealed trait TaskCreationEvent extends TaskEvent {
-  val id: TaskId
-}
-sealed trait TaskMutationEvent extends TaskEvent
+trait TaskCreationEvent extends TaskEvent with EntityCreationEvent[Task]
+trait TaskMutationEvent extends TaskEvent with EntityMutationEvent[Task]
 
 object TaskEvent {
 
@@ -14,18 +12,28 @@ object TaskEvent {
       id: TaskId,
       subject: Subject,
       status: Status
-  ) extends TaskCreationEvent
+  ) extends TaskCreationEvent {
+    override def play: Task =
+      Task(id, subject, status)
+  }
 
   case class SubjectEdited(
       newSubject: Subject
-  ) extends TaskMutationEvent
+  ) extends TaskMutationEvent {
+    override def playTo(entity: Task): Task =
+      entity.copy(subject = newSubject)
+  }
 
   case object Done extends TaskMutationEvent {
     val status = Status.Done
+    override def playTo(entity: Task): Task =
+      entity.copy(status = status)
   }
 
   case object BackedToTodo extends TaskMutationEvent {
     val status = Status.Todo
+    override def playTo(entity: Task): Task =
+      entity.copy(status = status)
   }
 
 }

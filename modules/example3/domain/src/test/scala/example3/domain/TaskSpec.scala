@@ -25,7 +25,7 @@ class TaskSpec extends AnyFreeSpec with Diagrams {
         )
       )
 
-      val actualState = actualEvent.play
+      val actualState = Task.applyEvent(actualEvent)
 
       assert(
         actualState == Task(
@@ -39,13 +39,12 @@ class TaskSpec extends AnyFreeSpec with Diagrams {
 
   "editSubject" - {
     "Should can modify subject if status is todo." in {
-      val sut =
-        Task
-          .create(
-            TaskId("1"),
-            Subject("Test")
-          )
-          .play
+      val sut = Task.applyEvent(
+        Task.create(
+          TaskId("1"),
+          Subject("Test")
+        )
+      )
       assert(sut.status == Status.Todo)
 
       val actualEvent = sut.editSubject(
@@ -60,7 +59,7 @@ class TaskSpec extends AnyFreeSpec with Diagrams {
         )
       )
 
-      val actualState = actualEvent.playTo(sut)
+      val actualState = sut.applyEvent(actualEvent)
 
       assert(
         actualState == Task(
@@ -75,15 +74,15 @@ class TaskSpec extends AnyFreeSpec with Diagrams {
       val sut: Task =
         for {
           task <- Right(
-            Task
-              .create(
+            Task.applyEvent(
+              Task.create(
                 TaskId("1"),
                 Subject("Test")
               )
-              .play
+            )
           )
           done <- task.toDone
-        } yield done.playTo(task)
+        } yield task.applyEvent(done)
       assert(sut.status == Status.Done)
 
       val actualEvent = sut.editSubject(
@@ -96,20 +95,19 @@ class TaskSpec extends AnyFreeSpec with Diagrams {
 
   "toDone" - {
     "Should can change status to done if status is todo." in {
-      val sut =
-        Task
-          .create(
-            TaskId("1"),
-            Subject("Test")
-          )
-          .play
+      val sut = Task.applyEvent(
+        Task.create(
+          TaskId("1"),
+          Subject("Test")
+        )
+      )
       assert(sut.status == Status.Todo)
 
       val actualEvent = sut.toDone
 
       assert(actualEvent == Right(Done))
 
-      val actualState = actualEvent.playTo(sut)
+      val actualState = sut.applyEvent(actualEvent)
 
       assert(
         actualState == Task(
@@ -124,15 +122,15 @@ class TaskSpec extends AnyFreeSpec with Diagrams {
       val sut: Task =
         for {
           task <- Right(
-            Task
-              .create(
+            Task.applyEvent(
+              Task.create(
                 TaskId("1"),
                 Subject("Test")
               )
-              .play
+            )
           )
           done <- task.toDone
-        } yield done.playTo(task)
+        } yield task.applyEvent(done)
       assert(sut.status == Status.Done)
 
       val actualEvent = sut.toDone
@@ -146,22 +144,22 @@ class TaskSpec extends AnyFreeSpec with Diagrams {
       val sut: Task =
         for {
           task <- Right(
-            Task
-              .create(
+            Task.applyEvent(
+              Task.create(
                 TaskId("1"),
                 Subject("Test")
               )
-              .play
+            )
           )
           done <- task.toDone
-        } yield done.playTo(task)
+        } yield task.applyEvent(done)
       assert(sut.status == Status.Done)
 
       val actualEvent = sut.backToTodo
 
       assert(actualEvent == Right(BackedToTodo))
 
-      val actualState = actualEvent.playTo(sut)
+      val actualState = sut.applyEvent(actualEvent)
 
       assert(
         actualState == Task(
@@ -173,13 +171,12 @@ class TaskSpec extends AnyFreeSpec with Diagrams {
     }
 
     "Should be can not it if status is todo." in {
-      val sut =
-        Task
-          .create(
-            TaskId("1"),
-            Subject("Test")
-          )
-          .play
+      val sut = Task.applyEvent(
+        Task.create(
+          TaskId("1"),
+          Subject("Test")
+        )
+      )
       assert(sut.status == Status.Todo)
 
       val actualEvent = sut.backToTodo
