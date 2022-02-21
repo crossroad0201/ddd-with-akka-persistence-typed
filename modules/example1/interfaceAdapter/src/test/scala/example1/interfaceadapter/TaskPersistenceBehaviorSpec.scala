@@ -47,20 +47,8 @@ class TaskPersistenceBehaviorSpec
         }
 
         assert(actual.reply == CreateSucceeded)
-        assert(
-          actual.event == Created(
-            Subject("Test")
-          )
-        )
-        assert(
-          actual.state == Just(
-            Task(
-              TaskId("1"),
-              Subject("Test"),
-              Status.Todo
-            )
-          )
-        )
+        assert(actual.event == Created(Subject("Test")))
+        assert(actual.state == Just(Task(TaskId("1"), Subject("Test"), Status.Todo)))
       }
     }
 
@@ -68,14 +56,7 @@ class TaskPersistenceBehaviorSpec
       "Should reply failed by already exists." in {
         val sut = createSutWithState(
           TaskId("1"),
-          id =>
-            Just(
-              Task(
-                id,
-                Subject("Test"),
-                Status.Todo
-              )
-            )
+          id => Just(Task(id, Subject("Test"), Status.Todo))
         )
 
         val actual = sut.runCommand[CreateReply] { replyTo =>
@@ -84,15 +65,7 @@ class TaskPersistenceBehaviorSpec
 
         assert(actual.reply == CreateFailedByAlreadyExists)
         assert(actual.hasNoEvents)
-        assert(
-          actual.state == Just(
-            Task(
-              TaskId("1"),
-              Subject("Test"),
-              Status.Todo
-            )
-          )
-        )
+        assert(actual.state == Just(Task(TaskId("1"), Subject("Test"), Status.Todo)))
       }
     }
   }
@@ -116,14 +89,7 @@ class TaskPersistenceBehaviorSpec
       "Should reply succeeded if status is todo." in {
         val sut = createSutWithState(
           TaskId("1"),
-          id =>
-            Just(
-              Task(
-                id,
-                Subject("Test"),
-                Status.Todo
-              )
-            )
+          id => Just(Task(id, Subject("Test"), Status.Todo))
         )
 
         val actual = sut.runCommand[EditSubjectReply] { replyTo =>
@@ -131,32 +97,14 @@ class TaskPersistenceBehaviorSpec
         }
 
         assert(actual.reply == EditSubjectSucceeded)
-        assert(
-          actual.event ==
-            SubjectEdited(Subject("Edited"))
-        )
-        assert(
-          actual.state == Just(
-            Task(
-              TaskId("1"),
-              Subject("Edited"),
-              Status.Todo
-            )
-          )
-        )
+        assert(actual.event == SubjectEdited(Subject("Edited")))
+        assert(actual.state == Just(Task(TaskId("1"), Subject("Edited"), Status.Todo)))
       }
 
       "Should reply failed by already done if status is done." in {
         val sut = createSutWithState(
           TaskId("1"),
-          id =>
-            Just(
-              Task(
-                id,
-                Subject("Test"),
-                Status.Done
-              )
-            )
+          id => Just(Task(id, Subject("Test"), Status.Done))
         )
 
         val actual = sut.runCommand[EditSubjectReply] { replyTo =>
@@ -165,15 +113,7 @@ class TaskPersistenceBehaviorSpec
 
         assert(actual.reply == EditSubjectFailedByAlreadyDone)
         assert(actual.hasNoEvents)
-        assert(
-          actual.state == Just(
-            Task(
-              TaskId("1"),
-              Subject("Test"),
-              Status.Done
-            )
-          )
-        )
+        assert(actual.state == Just(Task(TaskId("1"), Subject("Test"), Status.Done)))
       }
     }
   }
@@ -195,17 +135,7 @@ class TaskPersistenceBehaviorSpec
 
     "In Just state" - {
       "Should reply succeeded if status is todo." in {
-        val sut = createSutWithState(
-          TaskId("1"),
-          id =>
-            Just(
-              Task(
-                id,
-                Subject("Test"),
-                Status.Todo
-              )
-            )
-        )
+        val sut = createSutWithState(TaskId("1"), id => Just(Task(id, Subject("Test"), Status.Todo)))
 
         val actual = sut.runCommand[ToDoneReply] { replyTo =>
           ToDone(replyTo)
@@ -213,28 +143,13 @@ class TaskPersistenceBehaviorSpec
 
         assert(actual.reply == ToDoneSucceeded)
         assert(actual.event == Done)
-        assert(
-          actual.state == Just(
-            Task(
-              TaskId("1"),
-              Subject("Test"),
-              Status.Done
-            )
-          )
-        )
+        assert(actual.state == Just(Task(TaskId("1"), Subject("Test"), Status.Done)))
       }
 
       "Should reply failed by already done if status is done." in {
         val sut = createSutWithState(
           TaskId("1"),
-          id =>
-            Just(
-              Task(
-                id,
-                Subject("Test"),
-                Status.Done
-              )
-            )
+          id => Just(Task(id, Subject("Test"), Status.Done))
         )
 
         val actual = sut.runCommand[ToDoneReply] { replyTo =>
@@ -243,15 +158,7 @@ class TaskPersistenceBehaviorSpec
 
         assert(actual.reply == ToDoneFailedByAlreadyDone)
         assert(actual.hasNoEvents)
-        assert(
-          actual.state == Just(
-            Task(
-              TaskId("1"),
-              Subject("Test"),
-              Status.Done
-            )
-          )
-        )
+        assert(actual.state == Just(Task(TaskId("1"), Subject("Test"), Status.Done)))
       }
     }
   }
@@ -275,14 +182,7 @@ class TaskPersistenceBehaviorSpec
       "Should reply succeeded if status is done." in {
         val sut = createSutWithState(
           TaskId("1"),
-          id =>
-            Just(
-              Task(
-                id,
-                Subject("Test"),
-                Status.Done
-              )
-            )
+          id => Just(Task(id, Subject("Test"), Status.Done))
         )
 
         val actual = sut.runCommand[BackToTodoReply] { replyTo =>
@@ -291,28 +191,13 @@ class TaskPersistenceBehaviorSpec
 
         assert(actual.reply == BackToTodoSucceeded$)
         assert(actual.event == BackedToTodo)
-        assert(
-          actual.state == Just(
-            Task(
-              TaskId("1"),
-              Subject("Test"),
-              Status.Todo
-            )
-          )
-        )
+        assert(actual.state == Just(Task(TaskId("1"), Subject("Test"), Status.Todo)))
       }
 
       "Should reply failed by already done if status is todo." in {
         val sut = createSutWithState(
           TaskId("1"),
-          id =>
-            Just(
-              Task(
-                id,
-                Subject("Test"),
-                Status.Todo
-              )
-            )
+          id => Just(Task(id, Subject("Test"), Status.Todo))
         )
 
         val actual = sut.runCommand[BackToTodoReply] { replyTo =>
@@ -321,15 +206,7 @@ class TaskPersistenceBehaviorSpec
 
         assert(actual.reply == BackToTodoFailedByStillNotDone$)
         assert(actual.hasNoEvents)
-        assert(
-          actual.state == Just(
-            Task(
-              TaskId("1"),
-              Subject("Test"),
-              Status.Todo
-            )
-          )
-        )
+        assert(actual.state == Just(Task(TaskId("1"), Subject("Test"), Status.Todo)))
       }
     }
   }
