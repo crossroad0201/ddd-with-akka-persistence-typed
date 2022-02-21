@@ -1,6 +1,6 @@
 package example5.domain
 
-import example5.domain.Task.{ BackToTodoErrorByStillNotDone$, EditSubjectErrorByAlreadyDone, ToDoneErrorByAlreadyDone }
+import example5.domain.Task.{ BackToTodoErrorByStillNotDone, EditSubjectErrorByAlreadyDone, ToDoneErrorByAlreadyDone }
 import example5.domain.TaskEvent.{ BackedToTodo, Created, Done, SubjectEdited }
 import org.scalatest.diagrams.Diagrams
 import org.scalatest.freespec.AnyFreeSpec
@@ -21,12 +21,11 @@ class TaskSpec extends AnyFreeSpec with Diagrams {
 
   "editSubject" - {
     "Should can modify subject if status is todo." in {
-      val sut = Task.create(TaskId("1"), Subject("Test")).entity
+      val sut: Task = Task.create(TaskId("1"), Subject("Test")).entity
       assert(sut.status == Status.Todo)
 
       val actual = sut.editSubject(Subject("Edited"))
 
-      assert(actual.isRight)
       assert(actual.event == SubjectEdited(Subject("Edited")))
       assert(actual.entity == Task(TaskId("1"), Subject("Edited"), Status.Todo))
     }
@@ -47,12 +46,11 @@ class TaskSpec extends AnyFreeSpec with Diagrams {
 
   "toDone" - {
     "Should can change status to done if status is todo." in {
-      val sut = Task.create(TaskId("1"), Subject("Test")).entity
+      val sut: Task = Task.create(TaskId("1"), Subject("Test")).entity
       assert(sut.status == Status.Todo)
 
       val actual = sut.toDone
 
-      assert(actual.isRight)
       assert(actual.event == Done)
       assert(actual.entity == Task(TaskId("1"), Subject("Test"), Status.Done))
     }
@@ -82,18 +80,17 @@ class TaskSpec extends AnyFreeSpec with Diagrams {
 
       val actual = sut.backToTodo
 
-      assert(actual.isRight)
       assert(actual.event == BackedToTodo)
       assert(actual.entity == Task(TaskId("1"), Subject("Test"), Status.Todo))
     }
 
     "Should be can not it if status is todo." in {
-      val sut = Task.create(TaskId("1"), Subject("Test")).entity
+      val sut: Task = Task.create(TaskId("1"), Subject("Test")).entity
       assert(sut.status == Status.Todo)
 
       val actual = sut.backToTodo
 
-      assert(actual == Left(BackToTodoErrorByStillNotDone$))
+      assert(actual == Left(BackToTodoErrorByStillNotDone))
     }
   }
 

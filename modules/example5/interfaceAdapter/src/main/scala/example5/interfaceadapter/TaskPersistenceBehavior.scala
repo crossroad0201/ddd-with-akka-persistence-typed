@@ -3,7 +3,7 @@ package example5.interfaceadapter
 import akka.actor.typed.Behavior
 import akka.persistence.typed.PersistenceId
 import akka.persistence.typed.scaladsl.{ Effect, EventSourcedBehavior, ReplyEffect }
-import example5.domain.Task.{ BackToTodoErrorByStillNotDone$, EditSubjectErrorByAlreadyDone, ToDoneErrorByAlreadyDone }
+import example5.domain.Task.{ BackToTodoErrorByStillNotDone, EditSubjectErrorByAlreadyDone, ToDoneErrorByAlreadyDone }
 import example5.domain._
 import example5.interfaceadapter.TaskProtocol._
 
@@ -77,7 +77,7 @@ object TaskPersistenceBehavior {
             Effect
               .persist(result.event)
               .thenReply(replyTo)(_ => BackToTodoSucceeded)
-          case Left(BackToTodoErrorByStillNotDone$) =>
+          case Left(BackToTodoErrorByStillNotDone) =>
             Effect
               .reply(replyTo)(BackToTodoFailedByStillNotDone)
         }

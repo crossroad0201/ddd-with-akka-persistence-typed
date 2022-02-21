@@ -26,21 +26,23 @@ case class Task(
     if (status == Status.Done)
       Right(Result(BackedToTodo, Task.this))
     else
-      Left(BackToTodoErrorByStillNotDone$)
+      Left(BackToTodoErrorByStillNotDone)
 
 }
 object Task {
   def create(id: TaskId, subject: Subject): Result[Created, Task] =
     Result(Created(id, subject, Status.Todo))
 
-  sealed trait EditSubjectError
+  sealed trait TaskError
+
+  sealed trait EditSubjectError extends TaskError
   case object EditSubjectErrorByAlreadyDone extends EditSubjectError
 
-  sealed trait ToDoneError
+  sealed trait ToDoneError extends TaskError
   case object ToDoneErrorByAlreadyDone extends ToDoneError
 
-  sealed trait BackToTodoError
-  case object BackToTodoErrorByStillNotDone$ extends BackToTodoError
+  sealed trait BackToTodoError extends TaskError
+  case object BackToTodoErrorByStillNotDone extends BackToTodoError
 }
 
 case class TaskId(value: String)

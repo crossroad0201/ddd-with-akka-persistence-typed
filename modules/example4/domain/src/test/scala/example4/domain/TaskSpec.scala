@@ -15,21 +15,21 @@ class TaskSpec extends AnyFreeSpec with Diagrams {
       val actualEvent = Task.create(TaskId("1"), Subject("Test"))
       assert(actualEvent == Created(TaskId("1"), Subject("Test"), Status.Todo))
 
-      val actualState = actualEvent.play
-      assert(actualState == Task(TaskId("1"), Subject("Test"), Status.Todo))
+      val actualEntity = actualEvent.play
+      assert(actualEntity == Task(TaskId("1"), Subject("Test"), Status.Todo))
     }
   }
 
   "editSubject" - {
     "Should can modify subject if status is todo." in {
-      val sut = Task.create(TaskId("1"), Subject("Test")).play
+      val sut: Task = Task.create(TaskId("1"), Subject("Test")).play
       assert(sut.status == Status.Todo)
 
       val actualEvent = sut.editSubject(Subject("Edited"))
       assert(actualEvent == Right(SubjectEdited(Subject("Edited"))))
 
-      val actualState = actualEvent.playTo(sut)
-      assert(actualState == Task(TaskId("1"), Subject("Edited"), Status.Todo))
+      val actualEntity = actualEvent.playTo(sut)
+      assert(actualEntity == Task(TaskId("1"), Subject("Edited"), Status.Todo))
     }
 
     "Should be can not it if status is done." in {
@@ -47,14 +47,14 @@ class TaskSpec extends AnyFreeSpec with Diagrams {
 
   "toDone" - {
     "Should can change status to done if status is todo." in {
-      val sut = Task.create(TaskId("1"), Subject("Test")).play
+      val sut: Task = Task.create(TaskId("1"), Subject("Test")).play
       assert(sut.status == Status.Todo)
 
       val actualEvent = sut.toDone
       assert(actualEvent == Right(Done))
 
-      val actualState = actualEvent.playTo(sut)
-      assert(actualState == Task(TaskId("1"), Subject("Test"), Status.Done))
+      val actualEntity = actualEvent.playTo(sut)
+      assert(actualEntity == Task(TaskId("1"), Subject("Test"), Status.Done))
     }
 
     "Should be can not it if status is done." in {
@@ -82,12 +82,12 @@ class TaskSpec extends AnyFreeSpec with Diagrams {
       val actualEvent = sut.backToTodo
       assert(actualEvent == Right(BackedToTodo))
 
-      val actualState = actualEvent.playTo(sut)
-      assert(actualState == Task(TaskId("1"), Subject("Test"), Status.Todo))
+      val actualEntity = actualEvent.playTo(sut)
+      assert(actualEntity == Task(TaskId("1"), Subject("Test"), Status.Todo))
     }
 
     "Should be can not it if status is todo." in {
-      val sut = Task.create(TaskId("1"), Subject("Test")).play
+      val sut: Task = Task.create(TaskId("1"), Subject("Test")).play
       assert(sut.status == Status.Todo)
 
       val actualEvent = sut.backToTodo
